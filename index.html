@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Horas Complementares</title>
+  <style>
+    /* Reset e fonte */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: Arial, sans-serif; background: #f4f7fc; color: #333; }
+
+    /* Container Geral */
+    .wrapper { max-width: 1200px; margin: 20px auto; padding: 10px; }
+
+    /* Cabeçalho e Botões de Navegação */
+    header { display: flex; justify-content: space-between; align-items: center; background: #007bff; color: #fff; padding: 15px; border-radius: 5px; }
+    header h1 { font-size: 24px; }
+    header .botoes { display: flex; gap: 10px; }
+    header button { background: #0056b3; border: none; padding: 8px 15px; color: #fff; border-radius: 3px; cursor: pointer; }
+    header button:hover { background: #003f7f; }
+
+    /* Estilos para as telas (login e principal) */
+    .tela { background: #fff; border-radius: 5px; padding: 20px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); margin-top: 20px; }
+    .hidden { display: none; }
+
+    /* Formulários */
+    form { margin-bottom: 20px; }
+    form label { display: block; margin-top: 10px; font-weight: bold; }
+    form input, form select { width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ccc; border-radius: 3px; }
+    form button { margin-top: 15px; background: #007bff; border: none; color: #fff; padding: 10px; border-radius: 3px; cursor: pointer; }
+    form button:hover { background: #0056b3; }
+
+    /* Abas da aplicação */
+    .tabs { display: flex; margin-bottom: 15px; }
+    .tab { flex: 1; text-align: center; padding: 10px; background: #eee; cursor: pointer; border: 1px solid #ccc; }
+    .tab.active { background: #007bff; color: #fff; font-weight: bold; }
+
+    /* Tabela de atividades e usuários */
+    table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+    table th, table td { border: 1px solid #ddd; padding: 10px; text-align: center; }
+    table th { background: #007bff; color: #fff; }
+    .actions { cursor: pointer; color: #007bff; text-decoration: underline; }
+    .small-btn { background: #ffc107; border: none; padding: 5px 8px; color: #333; border-radius: 3px; cursor: pointer; margin: 2px; }
+    .small-btn:hover { background: #e0a800; }
+
+    /* Botão para impressão */
+    .imprimir-btn { background: #28a745; margin-top: 10px; }
+    .imprimir-btn:hover { background: #1e7e34; }
+
+    /* Login e Registro */
+    .login-container { max-width: 400px; margin: 80px auto; padding: 20px; background: #fff; border-radius: 5px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+    .login-container h2 { text-align: center; margin-bottom: 15px; }
+    .toggle { text-align: center; margin-top: 10px; cursor: pointer; color: #007bff; }
+    .about { text-align: center; margin-top: 10px; cursor: pointer; color: #007bff; }
+  </style>
+</head>
+<body>
+  <!-- Tela de Login/Registro -->
+  <div id="loginScreen" class="login-container">
+    <h2 id="loginTitle">Login</h2>
+    <form id="loginForm">
+      <label for="username">Usuário (Email):</label>
+      <input type="text" id="username" required>
+      <label for="password">Senha:</label>
+      <input type="password" id="password" required>
+      <button type="submit">Entrar</button>
+    </form>
+    <div class="toggle" onclick="toggleLogin()">Não tem conta? Registre-se</div>
+    <div class="about" onclick="mostrarSobre()">Sobre</div>
+  </div>
+
+  <!-- Tela Principal -->
+  <div id="mainScreen" class="wrapper hidden">
+    <header>
+      <h1>Horas Complementares – <span id="userInfo"></span></h1>
+      <div class="botoes">
+        <button onclick="logout()">Sair</button>
+      </div>
+    </header>
+    <div class="tela">
+      <div class="tabs" id="tabsContainer">
+        <div class="tab active" data-tab="cadastrar">Cadastrar Atividade</div>
+        <div class="tab" data-tab="exibir">Exibir Atividades</div>
+        <div class="tab" data-tab="editar">Editar/Excluir Atividade</div>
+        <!-- A aba Desenvolvedor será adicionada dinamicamente se o usuário for dev -->
+      </div>
+      <!-- Área das abas -->
+      <div id="cadastrar" class="tabContent">
+        <form id="formCadastro">
+          <label for="nome">Nome da Atividade:</label>
+          <input type="text" id="nome" required>
+          <label for="tipo">Tipo da Atividade:</label>
+          <select id="tipo" required></select>
+          <label for="horas">Horas:</label>
+          <input type="number" id="horas" min="0" step="0.1" required>
+          <label for="periodo">Período:</label>
+          <input type="text" id="periodo" required>
+          <button type="submit">Cadastrar Atividade</button>
+          <button type="button" onclick="limparCadastro()">Limpar</button>
+        </form>
+      </div>
+
+      <div id="exibir" class="tabContent hidden">
+        <form id="formFiltro">
+          <label for="filtroTipo">Filtrar por Tipo de Atividade:</label>
+          <select id="filtroTipo">
+            <option value="Todos">Todos</option>
+          </select>
+          <label for="filtroPeriodo">Filtrar por Período:</label>
+          <input type="text" id="filtroPeriodo">
+          <button type="submit">Aplicar Filtro</button>
+        </form>
+        <button class="imprimir-btn" onclick="window.print()">Imprimir</button>
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Nome</th>
+              <th>Tipo</th>
+              <th>Horas</th>
+              <th>Período</th>
+              <th>Horas Consideradas</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody id="tabelaAtividades"></tbody>
+        </table>
+        <p id="totalHoras" style="margin-top:10px; font-weight:bold;"></p>
+      </div>
+
+      <div id="editar" class="tabContent hidden">
+        <form id="formEdicao">
+          <input type="hidden" id="idEdicao">
+          <label for="nomeEdicao">Nome da Atividade:</label>
+          <input type="text" id="nomeEdicao" required>
+          <label for="tipoEdicao">Tipo da Atividade:</label>
+          <select id="tipoEdicao" required></select>
+          <label for="horasEdicao">Horas:</label>
+          <input type="number" id="horasEdicao" min="0" step="0.1" required>
+          <label for="periodoEdicao">Período:</label>
+          <input type="text" id="periodoEdicao" required>
+          <button type="submit">Atualizar Atividade</button>
+          <button type="button" onclick="deletarAtividade()">Excluir Atividade</button>
+          <button type="button" onclick="limparEdicao()">Limpar Campos</button>
+        </form>
+        <p style="margin-top:10px;">*Para editar, clique duas vezes em uma linha da aba "Exibir Atividades".</p>
+      </div>
+
+      <!-- Aba Desenvolvedor: visível somente em modo dev -->
+      <div id="desenvolvedor" class="tabContent hidden">
+        <h3>Usuários Cadastrados</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Usuário</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody id="tabelaUsuarios"></tbody>
+        </table>
+        <h3 style="margin-top:20px;">Registros de Atividades (Todos Usuários)</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Usuário</th>
+              <th>Nome</th>
+              <th>Tipo</th>
+              <th>Horas</th>
+              <th>Período</th>
+              <th>Horas Consideradas</th>
+            </tr>
+          </thead>
+          <tbody id="tabelaTodasAtividades"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /************ Dados e Configurações ************/
+    // Lista com os 40 tipos de atividade
+    const opcoesAtividades = [
+      'Bolsista em projeto de pesquisa',
+      'Voluntário em projeto de pesquisa',
+      'Bolsista em projeto de extensão',
+      'Voluntário em projeto de extensão',
+      'Bolsista em monitoria',
+      'Monitoria voluntária',
+      'Disciplinas cursadas com aprovação',
+      'Participação em projetos especiais e atléticas desportivas',
+      'Publicação de artigo em revista Qualis A1, A2, B1, B2 e B3',
+      'Publicação de artigo em revista Qualis B4, B5 e C',
+      'Publicação de artigo completo em congresso internacional',
+      'Publicação de artigo completo em congresso nacional',
+      'Depósito de pedido de Patente',
+      'Participação em congressos internacionais',
+      'Participação em congressos nacionais/Regionais',
+      'Apresentação de artigo em congresso internacional',
+      'Apresentação de artigo em congresso nacional',
+      'Apresentação de trabalhos em seminários, encontros, jornadas, colóquios, workshops locais',
+      'Participação como ouvinte em palestras, congressos, seminários, conferências, encontros, workshops',
+      'Participação em audiências de defesas de monografias, dissertações e teses',
+      'Organização de eventos: seminários, congressos, encontros, jornadas e colóquios',
+      'Participação na composição de empresa júnior do Curso',
+      'Participação na diretoria do centro Acadêmico do Curso',
+      'Participação na condição de representante estudantil no colegiado de curso, assembleia departamental ou conselho de centro',
+      'Treinamento como participante',
+      'Treinamento como ministrante',
+      'Participação em CREA Jr e ABEPRO-JUNIOR',
+      'Consultoria',
+      'Estágio Não-Curricular',
+      'Participação em gincanas ou torneios de conhecimento',
+      'Participação em atividades de voluntariado, campanhas beneficentes e beneméritas',
+      'Visitas técnicas realizadas em atividades referentes ao Curso',
+      'Participação em atividades desportivas representando o Curso de Engenharia de Produção ou a UEMA',
+      'Participação em Cursos (áreas da ABEPRO)',
+      'Participação de cursos via plataforma Eskada',
+      'Facilitador de Cursos (ministrante)',
+      'Curso de língua Estrangeira',
+      'Intercâmbio',
+      'Participação em startups ou incubadoras',
+      'Registro de Software'
+    ];
+
+    // Máximo de horas por atividade (conforme original)
+    const maxHorasAtividades = {
+      'Bolsista em projeto de pesquisa': 80,
+      'Voluntário em projeto de pesquisa': 80,
+      'Bolsista em projeto de extensão': 80,
+      'Voluntário em projeto de extensão': 80,
+      'Bolsista em monitoria': 80,
+      'Monitoria voluntária': 80,
+      'Disciplinas cursadas com aprovação': 90,
+      'Participação em projetos especiais e atléticas desportivas': 90,
+      'Publicação de artigo em revista Qualis A1, A2, B1, B2 e B3': 180,
+      'Publicação de artigo em revista Qualis B4, B5 e C': 120,
+      'Publicação de artigo completo em congresso internacional': 60,
+      'Publicação de artigo completo em congresso nacional': 60,
+      'Depósito de pedido de Patente': 120,
+      'Participação em congressos internacionais': 60,
+      'Participação em congressos nacionais/Regionais': 60,
+      'Apresentação de artigo em congresso internacional': 60,
+      'Apresentação de artigo em congresso nacional': 60,
+      'Apresentação de trabalhos em seminários, encontros, jornadas, colóquios, workshops locais': 60,
+      'Participação como ouvinte em palestras, congressos, seminários, conferências, encontros, workshops': 60,
+      'Participação em audiências de defesas de monografias, dissertações e teses': 15,
+      'Organização de eventos: seminários, congressos, encontros, jornadas e colóquios': 60,
+      'Participação na composição de empresa júnior do Curso': 120,
+      'Participação na diretoria do centro Acadêmico do Curso': 120,
+      'Participação na condição de representante estudantil no colegiado de curso, assembleia departamental ou conselho de centro': 30,
+      'Treinamento como participante': 30,
+      'Treinamento como ministrante': 30,
+      'Participação em CREA Jr e ABEPRO-JUNIOR': 60,
+      'Consultoria': 30,
+      'Estágio Não-Curricular': 60,
+      'Participação em gincanas ou torneios de conhecimento': 15,
+      'Participação em atividades de voluntariado, campanhas beneficentes e beneméritas': 30,
+      'Visitas técnicas realizadas em atividades referentes ao Curso': 30,
+      'Participação em atividades desportivas representando o Curso de Engenharia de Produção ou a UEMA': 30,
+      'Participação em Cursos (áreas da ABEPRO)': 40,
+      'Participação de cursos via plataforma Eskada': 50,
+      'Facilitador de Cursos (ministrante)': 60,
+      'Curso de língua Estrangeira': 30,
+      'Intercâmbio': 30,
+      'Participação em startups ou incubadoras': 40,
+      'Registro de Software': 120
+    };
+
+    // Critérios para calcular horas consideradas
+    const criterios = {
+      'Bolsista em projeto de pesquisa': 20,
+      'Voluntário em projeto de pesquisa': 20,
+      'Bolsista em projeto de extensão': 20,
+      'Voluntário em projeto de extensão': 20,
+      'Bolsista em monitoria': 20,
+      'Monitoria voluntária': 20,
+      'Disciplinas cursadas com aprovação': 90,
+      'Participação em projetos especiais e atléticas desportivas': 30,
+      'Publicação de artigo em revista Qualis A1, A2, B1, B2 e B3': 90,
+      'Publicação de artigo em revista Qualis B4, B5 e C': 60,
+      'Publicação de artigo completo em congresso internacional': 30,
+      'Publicação de artigo completo em congresso nacional': 20,
+      'Depósito de pedido de Patente': 120,
+      'Participação em congressos internacionais': 20,
+      'Participação em congressos nacionais/Regionais': 10,
+      'Apresentação de artigo em congresso internacional': 30,
+      'Apresentação de artigo em congresso nacional': 20,
+      'Apresentação de trabalhos em seminários, encontros, jornadas, colóquios, workshops locais': 15,
+      'Participação como ouvinte em palestras, congressos, seminários, conferências, encontros, workshops': 7.5,
+      'Participação em audiências de defesas de monografias, dissertações e teses': 5,
+      'Organização de eventos: seminários, congressos, encontros, jornadas e colóquios': 20,
+      'Participação na composição de empresa júnior do Curso': 30,
+      'Participação na diretoria do centro Acadêmico do Curso': 30,
+      'Participação na condição de representante estudantil no colegiado de curso, assembleia departamental ou conselho de centro': 5,
+      'Treinamento como participante': 5,
+      'Treinamento como ministrante': 10,
+      'Participação em CREA Jr e ABEPRO-JUNIOR': 30,
+      'Consultoria': 15,
+      'Estágio Não-Curricular': 30,
+      'Participação em gincanas ou torneios de conhecimento': 5,
+      'Participação em atividades de voluntariado, campanhas beneficentes e beneméritas': 5,
+      'Visitas técnicas realizadas em atividades referentes ao Curso': 5,
+      'Participação em atividades desportivas representando o Curso de Engenharia de Produção ou a UEMA': 5,
+      'Participação em Cursos (áreas da ABEPRO)': 10,
+      'Participação de cursos via plataforma Eskada': 10,
+      'Facilitador de Cursos (ministrante)': 15,
+      'Curso de língua Estrangeira': 15,
+      'Intercâmbio': 15,
+      'Participação em startups ou incubadoras': 20,
+      'Registro de Software': 60
+    };
+
+    function calcularHorasConsideradas(tipo, horas) {
+      return Math.min(horas, criterios[tipo] || 0);
+    }
+
+    // Função que consulta (soma) as horas consideradas para um dado usuário e tipo
+    function consultarHorasConsideradas(usuario, tipo, callback) {
+      let total = 0;
+      let transaction = db.transaction("atividades", "readonly");
+      let store = transaction.objectStore("atividades");
+      let request = store.openCursor();
+      request.onsuccess = function(event) {
+        let cursor = event.target.result;
+        if(cursor) {
+          if(cursor.value.usuario === usuario && cursor.value.tipo === tipo) {
+            total += cursor.value.horasConsideradas;
+          }
+          cursor.continue();
+        } else {
+          callback(total);
+        }
+      };
+    }
+
+    /************ IndexedDB Setup ************/
+    let db;
+    const request = indexedDB.open("HorasComplementaresDB", 1);
+    request.onupgradeneeded = function(event) {
+      db = event.target.result;
+      if (!db.objectStoreNames.contains("usuarios")) {
+        db.createObjectStore("usuarios", { keyPath: "username" });
+      }
+      if (!db.objectStoreNames.contains("atividades")) {
+        db.createObjectStore("atividades", { keyPath: "id", autoIncrement: true });
+      }
+    };
+    request.onsuccess = function(event) {
+      db = event.target.result;
+    };
+    request.onerror = function(event) {
+      console.error("Erro no IndexedDB", event);
+    };
+
+    /************ Sistema de Login/Registro ************/
+    let currentUser = null;
+    let isDev = false; // Flag para modo desenvolvedor
+    const loginForm = document.getElementById("loginForm");
+    const loginScreen = document.getElementById("loginScreen");
+    const mainScreen = document.getElementById("mainScreen");
+    const loginTitle = document.getElementById("loginTitle");
+
+    loginForm.addEventListener("submit", function(e) {
+      e.preventDefault();
+      const username = document.getElementById("username").value.trim();
+      const password = document.getElementById("password").value.trim();
+      if(!username || !password) return;
+      let transaction = db.transaction("usuarios", "readonly");
+      let store = transaction.objectStore("usuarios");
+      let req = store.get(username);
+      req.onsuccess = function(event) {
+        let user = event.target.result;
+        // Verifica se é login de desenvolvedor
+        if(username === "caepro.uema@gmail.com" && password === "producao.ca") {
+          isDev = true;
+          currentUser = username;
+          iniciarApp();
+        } else if(loginTitle.textContent === "Login") {
+          if(user && user.password === password) {
+            currentUser = username;
+            iniciarApp();
+          } else {
+            alert("Usuário ou senha inválidos!");
+          }
+        } else {
+          // Registro
+          if(user) {
+            alert("Usuário já existe!");
+          } else {
+            let trans = db.transaction("usuarios", "readwrite");
+            let storeWrite = trans.objectStore("usuarios");
+            storeWrite.add({ username, password });
+            alert("Registro realizado com sucesso!");
+            loginTitle.textContent = "Login";
+          }
+        }
+      };
+    });
+
+    function toggleLogin() {
+      if(loginTitle.textContent === "Login") {
+        loginTitle.textContent = "Registro";
+      } else {
+        loginTitle.textContent = "Login";
+      }
+    }
+
+    function iniciarApp() {
+      loginScreen.classList.add("hidden");
+      mainScreen.classList.remove("hidden");
+      document.getElementById("userInfo").textContent = currentUser;
+      popularSelects();
+      atualizarTabela();
+      if(isDev) {
+        adicionarAbaDesenvolvedor();
+        atualizarTabelaUsuarios();
+        atualizarTabelaTodasAtividades();
+      }
+    }
+
+    function logout() {
+      currentUser = null;
+      location.reload();
+    }
+
+    function mostrarSobre() {
+      alert("Horas Complementares - Versão 1.0\nDesenvolvido para gerenciamento de atividades complementares.\n\nNo modo desenvolvedor, é possível visualizar e alterar os registros dos usuários.");
+    }
+
+    /************ Popular os selects de tipos ************/
+    function popularSelects() {
+      const selects = [document.getElementById("tipo"), document.getElementById("tipoEdicao")];
+      const filtroSelect = document.getElementById("filtroTipo");
+      selects.forEach(sel => {
+        sel.innerHTML = "";
+        opcoesAtividades.forEach(opt => {
+          let option = document.createElement("option");
+          option.value = opt;
+          option.textContent = opt;
+          sel.appendChild(option);
+        });
+      });
+      filtroSelect.innerHTML = `<option value="Todos">Todos</option>`;
+      opcoesAtividades.forEach(opt => {
+        let option = document.createElement("option");
+        option.value = opt;
+        option.textContent = opt;
+        filtroSelect.appendChild(option);
+      });
+    }
+
+    /************ Abas de Navegação ************/
+    const tabsContainer = document.getElementById("tabsContainer");
+    const tabs = document.querySelectorAll(".tab");
+    const tabContents = document.querySelectorAll(".tabContent");
+    tabsContainer.addEventListener("click", function(e) {
+      if(e.target.classList.contains("tab")) {
+        tabs.forEach(t => t.classList.remove("active"));
+        e.target.classList.add("active");
+        let target = e.target.getAttribute("data-tab");
+        tabContents.forEach(content => {
+          content.classList.add("hidden");
+          if(content.id === target) content.classList.remove("hidden");
+        });
+      }
+    });
+
+    // Se for desenvolvedor, adiciona a aba "Desenvolvedor"
+    function adicionarAbaDesenvolvedor() {
+      let devTab = document.createElement("div");
+      devTab.className = "tab";
+      devTab.setAttribute("data-tab", "desenvolvedor");
+      devTab.textContent = "Desenvolvedor";
+      tabsContainer.appendChild(devTab);
+    }
+
+    /************ Cadastro de Atividades ************/
+    const formCadastro = document.getElementById("formCadastro");
+    formCadastro.addEventListener("submit", function(e) {
+      e.preventDefault();
+      const nome = document.getElementById("nome").value.trim();
+      const tipo = document.getElementById("tipo").value;
+      const horas = parseFloat(document.getElementById("horas").value);
+      const periodo = document.getElementById("periodo").value.trim();
+      const horasConsideradas = calcularHorasConsideradas(tipo, horas);
+      // Verificar limite para o usuário
+      consultarHorasConsideradas(currentUser, tipo, function(total) {
+        if(total + horasConsideradas <= maxHorasAtividades[tipo]) {
+          const novaAtividade = { usuario: currentUser, nome, tipo, horas, periodo, horasConsideradas };
+          let trans = db.transaction("atividades", "readwrite");
+          let store = trans.objectStore("atividades");
+          store.add(novaAtividade);
+          trans.oncomplete = function() {
+            alert("Atividade cadastrada com sucesso!");
+            formCadastro.reset();
+            atualizarTabela();
+            if(isDev) atualizarTabelaTodasAtividades();
+          };
+        } else {
+          alert("A atividade já atingiu o número máximo de horas registradas!");
+        }
+      });
+    });
+
+    function limparCadastro() {
+      formCadastro.reset();
+    }
+
+    /************ Exibir e Filtrar Atividades ************/
+    const formFiltro = document.getElementById("formFiltro");
+    formFiltro.addEventListener("submit", function(e) {
+      e.preventDefault();
+      atualizarTabela();
+    });
+
+    function atualizarTabela() {
+      const filtroTipo = document.getElementById("filtroTipo").value;
+      const filtroPeriodo = document.getElementById("filtroPeriodo").value.trim().toLowerCase();
+      const tbody = document.getElementById("tabelaAtividades");
+      tbody.innerHTML = "";
+      let totalHoras = 0;
+      let trans = db.transaction("atividades", "readonly");
+      let store = trans.objectStore("atividades");
+      let req = store.openCursor();
+      req.onsuccess = function(event) {
+        let cursor = event.target.result;
+        if(cursor) {
+          let atividade = cursor.value;
+          if(atividade.usuario === currentUser) {
+            if(filtroTipo !== "Todos" && atividade.tipo !== filtroTipo) {
+              cursor.continue();
+              return;
+            }
+            if(filtroPeriodo && !atividade.periodo.toLowerCase().includes(filtroPeriodo)) {
+              cursor.continue();
+              return;
+            }
+            totalHoras += atividade.horasConsideradas;
+            let tr = document.createElement("tr");
+            tr.innerHTML = `
+              <td>${atividade.id}</td>
+              <td>${atividade.nome}</td>
+              <td>${atividade.tipo}</td>
+              <td>${atividade.horas}</td>
+              <td>${atividade.periodo}</td>
+              <td>${atividade.horasConsideradas}</td>
+              <td>
+                <span class="actions" ondblclick="carregarEdicao(${atividade.id})">Editar</span>
+              </td>
+            `;
+            tbody.appendChild(tr);
+          }
+          cursor.continue();
+        } else {
+          document.getElementById("totalHoras").textContent = "Total de Horas Consideradas: " + totalHoras;
+        }
+      };
+    }
+
+    /************ Edição e Exclusão ************/
+    const formEdicao = document.getElementById("formEdicao");
+    formEdicao.addEventListener("submit", function(e) {
+      e.preventDefault();
+      const id = Number(document.getElementById("idEdicao").value);
+      const nome = document.getElementById("nomeEdicao").value.trim();
+      const tipo = document.getElementById("tipoEdicao").value;
+      const horas = parseFloat(document.getElementById("horasEdicao").value);
+      const periodo = document.getElementById("periodoEdicao").value.trim();
+      const novasHorasConsideradas = calcularHorasConsideradas(tipo, horas);
+      let totalAntes = 0;
+      let trans = db.transaction("atividades", "readonly");
+      let store = trans.objectStore("atividades");
+      let req = store.openCursor();
+      req.onsuccess = function(event) {
+        let cursor = event.target.result;
+        if(cursor) {
+          let atv = cursor.value;
+          if(atv.usuario === currentUser && atv.tipo === tipo && atv.id !== id) {
+            totalAntes += atv.horasConsideradas;
+          }
+          cursor.continue();
+        } else {
+          if(totalAntes + novasHorasConsideradas <= maxHorasAtividades[tipo]) {
+            let updateTrans = db.transaction("atividades", "readwrite");
+            let storeUpdate = updateTrans.objectStore("atividades");
+            storeUpdate.get(id).onsuccess = function(event) {
+              let atividade = event.target.result;
+              atividade.nome = nome;
+              atividade.tipo = tipo;
+              atividade.horas = horas;
+              atividade.periodo = periodo;
+              atividade.horasConsideradas = novasHorasConsideradas;
+              storeUpdate.put(atividade);
+              updateTrans.oncomplete = function() {
+                alert("Atividade atualizada com sucesso!");
+                formEdicao.reset();
+                atualizarTabela();
+                if(isDev) atualizarTabelaTodasAtividades();
+              };
+            };
+          } else {
+            alert("A atividade já atingiu o número máximo de horas registradas!");
+          }
+        }
+      };
+    });
+
+    function carregarEdicao(id) {
+      document.querySelector('[data-tab="editar"]').click();
+      let trans = db.transaction("atividades", "readonly");
+      let store = trans.objectStore("atividades");
+      store.get(id).onsuccess = function(event) {
+        let atividade = event.target.result;
+        document.getElementById("idEdicao").value = atividade.id;
+        document.getElementById("nomeEdicao").value = atividade.nome;
+        document.getElementById("tipoEdicao").value = atividade.tipo;
+        document.getElementById("horasEdicao").value = atividade.horas;
+        document.getElementById("periodoEdicao").value = atividade.periodo;
+      };
+    }
+
+    function deletarAtividade() {
+      const id = Number(document.getElementById("idEdicao").value);
+      if(confirm("Deseja realmente excluir esta atividade?")) {
+        let trans = db.transaction("atividades", "readwrite");
+        let store = trans.objectStore("atividades");
+        store.delete(id);
+        trans.oncomplete = function() {
+          alert("Atividade excluída com sucesso!");
+          formEdicao.reset();
+          atualizarTabela();
+          if(isDev) atualizarTabelaTodasAtividades();
+        };
+      }
+    }
+
+    function limparEdicao() {
+      formEdicao.reset();
+    }
+
+    /************ Modo Desenvolvedor ************/
+    // Atualiza tabela de usuários cadastrados com opções para editar nome, senha e excluir
+    function atualizarTabelaUsuarios() {
+      const tbody = document.getElementById("tabelaUsuarios");
+      tbody.innerHTML = "";
+      let trans = db.transaction("usuarios", "readonly");
+      let store = trans.objectStore("usuarios");
+      let req = store.openCursor();
+      req.onsuccess = function(event) {
+        let cursor = event.target.result;
+        if(cursor) {
+          let user = cursor.value;
+          let tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${user.username}</td>
+            <td>
+              <button class="small-btn" onclick="editarUsuario('${user.username}')">Editar Nome</button>
+              <button class="small-btn" onclick="editarSenha('${user.username}')">Alterar Senha</button>
+              <button class="small-btn" onclick="excluirUsuario('${user.username}')">Excluir</button>
+            </td>
+          `;
+          tbody.appendChild(tr);
+          cursor.continue();
+        }
+      };
+    }
+
+    // Atualiza tabela de todas as atividades (todos os usuários)
+    function atualizarTabelaTodasAtividades() {
+      const tbody = document.getElementById("tabelaTodasAtividades");
+      tbody.innerHTML = "";
+      let trans = db.transaction("atividades", "readonly");
+      let store = trans.objectStore("atividades");
+      let req = store.openCursor();
+      req.onsuccess = function(event) {
+        let cursor = event.target.result;
+        if(cursor) {
+          let atv = cursor.value;
+          let tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${atv.id}</td>
+            <td>${atv.usuario}</td>
+            <td>${atv.nome}</td>
+            <td>${atv.tipo}</td>
+            <td>${atv.horas}</td>
+            <td>${atv.periodo}</td>
+            <td>${atv.horasConsideradas}</td>
+          `;
+          tbody.appendChild(tr);
+          cursor.continue();
+        }
+      };
+    }
+
+    // Função para editar o nome de um usuário (modo dev)
+    function editarUsuario(username) {
+      let novoUsername = prompt("Novo nome de usuário:", username);
+      if(novoUsername && novoUsername !== username) {
+        let trans = db.transaction("usuarios", "readwrite");
+        let store = trans.objectStore("usuarios");
+        store.get(username).onsuccess = function(event) {
+          let user = event.target.result;
+          user.username = novoUsername;
+          store.put(user);
+          trans.oncomplete = function() {
+            alert("Usuário atualizado!");
+            atualizarTabelaUsuarios();
+            atualizarTabela();
+            if(isDev) atualizarTabelaTodasAtividades();
+          };
+        };
+      }
+    }
+
+    // Função para alterar a senha do usuário (modo dev)
+    function editarSenha(username) {
+      let novaSenha = prompt("Nova senha para " + username + ":");
+      if(novaSenha) {
+        let trans = db.transaction("usuarios", "readwrite");
+        let store = trans.objectStore("usuarios");
+        store.get(username).onsuccess = function(event) {
+          let user = event.target.result;
+          user.password = novaSenha;
+          store.put(user);
+          trans.oncomplete = function() {
+            alert("Senha atualizada com sucesso!");
+          };
+        };
+      }
+    }
+
+    // Função para excluir um usuário (modo dev)
+    function excluirUsuario(username) {
+      if(confirm("Deseja realmente excluir o usuário " + username + "?")) {
+        let trans = db.transaction("usuarios", "readwrite");
+        let store = trans.objectStore("usuarios");
+        store.delete(username);
+        trans.oncomplete = function() {
+          alert("Usuário excluído!");
+          atualizarTabelaUsuarios();
+        };
+      }
+    }
+  </script>
+</body>
+</html>
