@@ -5,53 +5,266 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Horas Complementares</title>
   <style>
-    /* Reset e fonte */
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: Arial, sans-serif; background: #f4f7fc; color: #333; }
+    :root {
+      --primary-color: #007bff;
+      --primary-dark: #0056b3;
+      --secondary-color: #28a745;
+      --background-color: #f4f7fc;
+      --text-color: #333;
+      --box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      --border-radius: 5px;
+      --transition: 0.3s ease;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: var(--background-color);
+      color: var(--text-color);
+      line-height: 1.6;
+    }
 
     /* Container Geral */
-    .wrapper { max-width: 1200px; margin: 20px auto; padding: 10px; }
+    .wrapper {
+      max-width: 1200px;
+      margin: 20px auto;
+      padding: 20px;
+      background: #fff;
+      border-radius: var(--border-radius);
+      box-shadow: var(--box-shadow);
+    }
 
     /* Cabeçalho e Botões de Navegação */
-    header { display: flex; justify-content: space-between; align-items: center; background: #007bff; color: #fff; padding: 15px; border-radius: 5px; }
-    header h1 { font-size: 24px; }
-    header .botoes { display: flex; gap: 10px; }
-    header button { background: #0056b3; border: none; padding: 8px 15px; color: #fff; border-radius: 3px; cursor: pointer; }
-    header button:hover { background: #003f7f; }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--primary-color);
+      color: #fff;
+      padding: 15px 20px;
+      border-radius: var(--border-radius);
+      margin-bottom: 20px;
+    }
+
+    header h1 {
+      font-size: 1.5rem;
+    }
+
+    header .botoes button {
+      background: var(--primary-dark);
+      border: none;
+      padding: 10px 15px;
+      color: #fff;
+      border-radius: var(--border-radius);
+      cursor: pointer;
+      transition: background var(--transition);
+    }
+
+    header .botoes button:hover {
+      background: #003f7f;
+    }
 
     /* Estilos para as telas (login e principal) */
-    .tela { background: #fff; border-radius: 5px; padding: 20px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); margin-top: 20px; }
-    .hidden { display: none; }
+    .tela {
+      background: #fff;
+      border-radius: var(--border-radius);
+      padding: 20px;
+      box-shadow: var(--box-shadow);
+      margin-top: 20px;
+    }
+
+    .hidden {
+      display: none;
+    }
 
     /* Formulários */
-    form { margin-bottom: 20px; }
-    form label { display: block; margin-top: 10px; font-weight: bold; }
-    form input, form select { width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ccc; border-radius: 3px; }
-    form button { margin-top: 15px; background: #007bff; border: none; color: #fff; padding: 10px; border-radius: 3px; cursor: pointer; }
-    form button:hover { background: #0056b3; }
+    form label {
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
+    }
+
+    form input,
+    form select {
+      width: 100%;
+      padding: 10px;
+      margin-top: 8px;
+      border: 1px solid #ccc;
+      border-radius: var(--border-radius);
+      transition: border-color var(--transition);
+    }
+
+    form input:focus,
+    form select:focus {
+      border-color: var(--primary-color);
+      outline: none;
+    }
+
+    form button {
+      margin-top: 20px;
+      background: var(--primary-color);
+      border: none;
+      color: #fff;
+      padding: 12px 20px;
+      border-radius: var(--border-radius);
+      cursor: pointer;
+      transition: background var(--transition);
+    }
+
+    form button:hover {
+      background: var(--primary-dark);
+    }
 
     /* Abas da aplicação */
-    .tabs { display: flex; margin-bottom: 15px; }
-    .tab { flex: 1; text-align: center; padding: 10px; background: #eee; cursor: pointer; border: 1px solid #ccc; }
-    .tab.active { background: #007bff; color: #fff; font-weight: bold; }
+    .tabs {
+      display: flex;
+      flex-wrap: wrap;
+      margin-bottom: 15px;
+    }
+
+    .tab {
+      flex: 1;
+      text-align: center;
+      padding: 10px;
+      background: #eee;
+      cursor: pointer;
+      border: 1px solid #ccc;
+      transition: background var(--transition);
+    }
+
+    .tab.active {
+      background: var(--primary-color);
+      color: #fff;
+      font-weight: bold;
+    }
 
     /* Tabela de atividades e usuários */
-    table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-    table th, table td { border: 1px solid #ddd; padding: 10px; text-align: center; }
-    table th { background: #007bff; color: #fff; }
-    .actions { cursor: pointer; color: #007bff; text-decoration: underline; }
-    .small-btn { background: #ffc107; border: none; padding: 5px 8px; color: #333; border-radius: 3px; cursor: pointer; margin: 2px; }
-    .small-btn:hover { background: #e0a800; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+    }
+
+    table th,
+    table td {
+      border: 1px solid #ddd;
+      padding: 12px;
+      text-align: center;
+    }
+
+    table th {
+      background: var(--primary-color);
+      color: #fff;
+    }
+
+    /* Botões pequenos e ações */
+    .actions {
+      cursor: pointer;
+      color: var(--primary-color);
+      text-decoration: underline;
+      transition: color var(--transition);
+    }
+
+    .actions:hover {
+      color: var(--primary-dark);
+    }
+
+    .small-btn {
+      background: #ffc107;
+      border: none;
+      padding: 5px 10px;
+      color: var(--text-color);
+      border-radius: var(--border-radius);
+      cursor: pointer;
+      margin: 2px;
+      transition: background var(--transition);
+    }
+
+    .small-btn:hover {
+      background: #e0a800;
+    }
 
     /* Botão para impressão */
-    .imprimir-btn { background: #28a745; margin-top: 10px; }
-    .imprimir-btn:hover { background: #1e7e34; }
+    .imprimir-btn {
+      background: var(--secondary-color);
+      margin-top: 10px;
+      padding: 10px 15px;
+      border: none;
+      color: #fff;
+      border-radius: var(--border-radius);
+      cursor: pointer;
+      transition: background var(--transition);
+    }
+
+    .imprimir-btn:hover {
+      background: #1e7e34;
+    }
 
     /* Login e Registro */
-    .login-container { max-width: 400px; margin: 80px auto; padding: 20px; background: #fff; border-radius: 5px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-    .login-container h2 { text-align: center; margin-bottom: 15px; }
-    .toggle { text-align: center; margin-top: 10px; cursor: pointer; color: #007bff; }
-    .about { text-align: center; margin-top: 10px; cursor: pointer; color: #007bff; }
+    .login-container {
+      max-width: 400px;
+      margin: 80px auto;
+      padding: 30px;
+      background: #fff;
+      border-radius: var(--border-radius);
+      box-shadow: var(--box-shadow);
+      text-align: center;
+    }
+
+    .login-container h2 {
+      margin-bottom: 20px;
+      font-size: 1.8rem;
+    }
+
+    .toggle,
+    .about {
+      display: block;
+      margin-top: 15px;
+      cursor: pointer;
+      color: var(--primary-color);
+      transition: color var(--transition);
+    }
+
+    .toggle:hover,
+    .about:hover {
+      color: var(--primary-dark);
+    }
+
+    /* Responsividade */
+    @media (max-width: 768px) {
+      header {
+        flex-direction: column;
+        text-align: center;
+      }
+      header h1 {
+        margin-bottom: 10px;
+      }
+      .tabs {
+        flex-direction: column;
+      }
+      .tab {
+        margin-bottom: 5px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      body {
+        padding: 10px;
+      }
+      form input,
+      form select,
+      form button {
+        font-size: 0.9rem;
+      }
+      header h1 {
+        font-size: 1.2rem;
+      }
+    }
   </style>
 </head>
 <body>
@@ -115,7 +328,8 @@
         <table>
           <thead>
             <tr>
-              <th>ID</th>
+              <!-- <th>ID</th>  <-- Remover ou comentar esta linha -->
+              <th>Código</th>  <!-- Nova coluna para o índice sequencial -->
               <th>Nome</th>
               <th>Tipo</th>
               <th>Horas</th>
@@ -123,7 +337,7 @@
               <th>Horas Consideradas</th>
               <th>Ações</th>
             </tr>
-          </thead>
+          </thead>          
           <tbody id="tabelaAtividades"></tbody>
         </table>
         <p id="totalHoras" style="margin-top:10px; font-weight:bold;"></p>
@@ -400,12 +614,19 @@
     });
 
     function toggleLogin() {
-      if(loginTitle.textContent === "Login") {
+      const submitButton = document.querySelector("#loginForm button[type=submit]");
+      const toggleLink = document.querySelector(".toggle");
+      if (loginTitle.textContent === "Login") {
         loginTitle.textContent = "Registro";
+        submitButton.textContent = "Registrar";
+        toggleLink.textContent = "Voltar para login";
       } else {
         loginTitle.textContent = "Login";
+        submitButton.textContent = "Entrar";
+        toggleLink.textContent = "Não tem conta? Registre-se";
       }
     }
+
 
     function iniciarApp() {
       loginScreen.classList.add("hidden");
@@ -484,11 +705,22 @@
       const tipo = document.getElementById("tipo").value;
       const horas = parseFloat(document.getElementById("horas").value);
       const periodo = document.getElementById("periodo").value.trim();
-      const horasConsideradas = calcularHorasConsideradas(tipo, horas);
-      // Verificar limite para o usuário
+      
       consultarHorasConsideradas(currentUser, tipo, function(total) {
-        if(total + horasConsideradas <= maxHorasAtividades[tipo]) {
-          const novaAtividade = { usuario: currentUser, nome, tipo, horas, periodo, horasConsideradas };
+        let maxRestante = maxHorasAtividades[tipo] - total;
+        // Calcula as horas consideradas conforme os três parâmetros
+        let novaAtividadeHorasConsideradas = Math.min(criterios[tipo], horas, maxRestante);
+        
+        if (novaAtividadeHorasConsideradas >= 0) {
+          const novaAtividade = { 
+            usuario: currentUser, 
+            nome, 
+            tipo, 
+            horas, 
+            periodo, 
+            horasConsideradas: novaAtividadeHorasConsideradas 
+          };
+          
           let trans = db.transaction("atividades", "readwrite");
           let store = trans.objectStore("atividades");
           store.add(novaAtividade);
@@ -496,13 +728,14 @@
             alert("Atividade cadastrada com sucesso!");
             formCadastro.reset();
             atualizarTabela();
-            if(isDev) atualizarTabelaTodasAtividades();
+            if (isDev) atualizarTabelaTodasAtividades();
           };
         } else {
           alert("A atividade já atingiu o número máximo de horas registradas!");
         }
       });
     });
+
 
     function limparCadastro() {
       formCadastro.reset();
@@ -520,41 +753,64 @@
       const filtroPeriodo = document.getElementById("filtroPeriodo").value.trim().toLowerCase();
       const tbody = document.getElementById("tabelaAtividades");
       tbody.innerHTML = "";
+
       let totalHoras = 0;
+      let atividadesDoUsuario = []; // Array para armazenar as atividades filtradas
+
       let trans = db.transaction("atividades", "readonly");
       let store = trans.objectStore("atividades");
       let req = store.openCursor();
+
       req.onsuccess = function(event) {
         let cursor = event.target.result;
-        if(cursor) {
+        if (cursor) {
           let atividade = cursor.value;
-          if(atividade.usuario === currentUser) {
-            if(filtroTipo !== "Todos" && atividade.tipo !== filtroTipo) {
+
+          // Verifica se a atividade pertence ao usuário
+          if (atividade.usuario === currentUser) {
+            // Aplica filtros
+            if (filtroTipo !== "Todos" && atividade.tipo !== filtroTipo) {
               cursor.continue();
               return;
             }
-            if(filtroPeriodo && !atividade.periodo.toLowerCase().includes(filtroPeriodo)) {
+            if (filtroPeriodo && !atividade.periodo.toLowerCase().includes(filtroPeriodo)) {
               cursor.continue();
               return;
             }
-            totalHoras += atividade.horasConsideradas;
-            let tr = document.createElement("tr");
-            tr.innerHTML = `
-              <td>${atividade.id}</td>
-              <td>${atividade.nome}</td>
-              <td>${atividade.tipo}</td>
-              <td>${atividade.horas}</td>
-              <td>${atividade.periodo}</td>
-              <td>${atividade.horasConsideradas}</td>
-              <td>
-                <span class="actions" ondblclick="carregarEdicao(${atividade.id})">Editar</span>
-              </td>
-            `;
-            tbody.appendChild(tr);
+
+            // Se passou pelos filtros, adiciona ao array
+            atividadesDoUsuario.push(atividade);
           }
           cursor.continue();
         } else {
-          document.getElementById("totalHoras").textContent = "Total de Horas Consideradas: " + totalHoras;
+          // Terminamos de percorrer o cursor. Agora podemos exibir as atividades
+          // usando o índice do array como "código" sequencial.
+          atividadesDoUsuario.forEach((atv, index) => {
+            totalHoras += atv.horasConsideradas;
+
+            // index + 1 => transformamos o índice do array (0,1,2...) em código (1,2,3...)
+            let tr = document.createElement("tr");
+            tr.innerHTML = `
+              <td>${index + 1}</td>     <!-- Aqui exibimos o "código" -->
+              <td>${atv.nome}</td>
+              <td>${atv.tipo}</td>
+              <td>${atv.horas}</td>
+              <td>${atv.periodo}</td>
+              <td>${atv.horasConsideradas}</td>
+              <td>
+                <!-- Guardamos o ID real em um data-attribute, caso precise usar no onclick -->
+                <span class="actions" 
+                      data-id="${atv.id}"
+                      ondblclick="carregarEdicao(${atv.id})">
+                  Editar
+                </span>
+              </td>
+            `;
+            tbody.appendChild(tr);
+          });
+
+          document.getElementById("totalHoras").textContent =
+            "Total de Horas Consideradas: " + totalHoras;
         }
       };
     }
@@ -568,21 +824,26 @@
       const tipo = document.getElementById("tipoEdicao").value;
       const horas = parseFloat(document.getElementById("horasEdicao").value);
       const periodo = document.getElementById("periodoEdicao").value.trim();
-      const novasHorasConsideradas = calcularHorasConsideradas(tipo, horas);
+      
       let totalAntes = 0;
       let trans = db.transaction("atividades", "readonly");
       let store = trans.objectStore("atividades");
       let req = store.openCursor();
+      
       req.onsuccess = function(event) {
         let cursor = event.target.result;
-        if(cursor) {
+        if (cursor) {
           let atv = cursor.value;
-          if(atv.usuario === currentUser && atv.tipo === tipo && atv.id !== id) {
+          // Considera apenas as atividades do usuário, do mesmo tipo e que não sejam a que está sendo editada
+          if (atv.usuario === currentUser && atv.tipo === tipo && atv.id !== id) {
             totalAntes += atv.horasConsideradas;
           }
           cursor.continue();
         } else {
-          if(totalAntes + novasHorasConsideradas <= maxHorasAtividades[tipo]) {
+          let maxRestante = maxHorasAtividades[tipo] - totalAntes;
+          let novasHorasConsideradas = Math.min(criterios[tipo], horas, maxRestante);
+          
+          if (novasHorasConsideradas > 0) {
             let updateTrans = db.transaction("atividades", "readwrite");
             let storeUpdate = updateTrans.objectStore("atividades");
             storeUpdate.get(id).onsuccess = function(event) {
@@ -597,7 +858,7 @@
                 alert("Atividade atualizada com sucesso!");
                 formEdicao.reset();
                 atualizarTabela();
-                if(isDev) atualizarTabelaTodasAtividades();
+                if (isDev) atualizarTabelaTodasAtividades();
               };
             };
           } else {
@@ -606,6 +867,7 @@
         }
       };
     });
+
 
     function carregarEdicao(id) {
       document.querySelector('[data-tab="editar"]').click();
