@@ -883,20 +883,96 @@
       };
     }
 
+    // 1) Função genérica para recálculo de um tipo, com callback
+    function recalcularHorasTipo(usuario, tipo, callback) {
+      // Fase de leitura
+      const atividades = [];
+      const readTrans = db.transaction("atividades", "readonly");
+      const readStore = readTrans.objectStore("atividades");
+      readStore.openCursor().onsuccess = function(ev) {
+        const cursor = ev.target.result;
+        if (cursor) {
+          const atv = cursor.value;
+          if (atv.usuario === usuario && atv.tipo === tipo) {
+            atividades.push(atv);
+          }
+          cursor.continue();
+        }
+      };
+      
+      readTrans.oncomplete = function() {
+        // Ordena por id (garante ordem de inserção)
+        atividades.sort((a, b) => a.id - b.id);
+
+        // Faz a fase de escrita
+        const writeTrans = db.transaction("atividades", "readwrite");
+        const writeStore = writeTrans.objectStore("atividades");
+        let acumulado = 0;
+        const maxTipo = maxHorasAtividades[tipo] || 0;
+        const criterio = criterios[tipo] || 0;
+
+        atividades.forEach(atv => {
+          const restante = Math.max(0, maxTipo - acumulado);
+          const novasHC = Math.min(criterio, atv.horas, restante);
+          acumulado += novasHC;
+          if (atv.horasConsideradas !== novasHC) {
+            atv.horasConsideradas = novasHC;
+            writeStore.put(atv);
+          }
+        });
+
+        writeTrans.oncomplete = function() {
+          if (typeof callback === 'function') callback();
+        };
+        writeTrans.onerror = function(e) {
+          console.error("Erro ao atualizar horasConsideradas:", e);
+          if (typeof callback === 'function') callback(e);
+        };
+      };
+      readTrans.onerror = function(e) {
+        console.error("Erro na leitura para recálculo:", e);
+        if (typeof callback === 'function') callback(e);
+      };
+    }
+
+    // 2) Ajuste na função de exclusão
     function deletarAtividade() {
       const id = Number(document.getElementById("idEdicao").value);
-      if(confirm("Deseja realmente excluir esta atividade?")) {
-        let trans = db.transaction("atividades", "readwrite");
-        let store = trans.objectStore("atividades");
-        store.delete(id);
-        trans.oncomplete = function() {
-          alert("Atividade excluída com sucesso!");
-          formEdicao.reset();
-          atualizarTabela();
-          if(isDev) atualizarTabelaTodasAtividades();
+      if (!confirm("Deseja realmente excluir esta atividade?")) return;
+
+      // Primeiro pega o tipo antes de apagar
+      const getTrans = db.transaction("atividades", "readonly");
+      getTrans.objectStore("atividades").get(id).onsuccess = function(ev) {
+        const tipo = ev.target.result.tipo;
+
+        // Agora apaga
+        const delTrans = db.transaction("atividades", "readwrite");
+        delTrans.objectStore("atividades").delete(id);
+
+        delTrans.oncomplete = function() {
+          // Recalcula e, só quando pronto, atualiza a UI
+          recalcularHorasTipo(currentUser, tipo, function(err) {
+            if (err) {
+              alert("Erro ao recálcular horas após exclusão. Veja console.");
+            } else {
+              alert("Atividade excluída e horas recálculadas com sucesso!");
+            }
+            formEdicao.reset();
+            atualizarTabela();
+            if (isDev) atualizarTabelaTodasAtividades();
+          });
         };
-      }
+        delTrans.onerror = function(e) {
+          console.error("Erro ao excluir atividade:", e);
+          alert("Não foi possível excluir a atividade. Veja console.");
+        };
+      };
+      getTrans.onerror = function(e) {
+        console.error("Erro ao obter atividade antes de excluir:", e);
+        alert("Não foi possível identificar a atividade. Veja console.");
+      };
     }
+
 
     function limparEdicao() {
       formEdicao.reset();
