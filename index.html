@@ -817,6 +817,7 @@
 
     /************ Edição e Exclusão ************/
     const formEdicao = document.getElementById("formEdicao");
+    // listener de edição simplificado:
     formEdicao.addEventListener("submit", function(e) {
       e.preventDefault();
       const id = Number(document.getElementById("idEdicao").value);
@@ -824,49 +825,39 @@
       const tipo = document.getElementById("tipoEdicao").value;
       const horas = parseFloat(document.getElementById("horasEdicao").value);
       const periodo = document.getElementById("periodoEdicao").value.trim();
-      
-      let totalAntes = 0;
-      let trans = db.transaction("atividades", "readonly");
-      let store = trans.objectStore("atividades");
-      let req = store.openCursor();
-      
-      req.onsuccess = function(event) {
-        let cursor = event.target.result;
-        if (cursor) {
-          let atv = cursor.value;
-          // Considera apenas as atividades do usuário, do mesmo tipo e que não sejam a que está sendo editada
-          if (atv.usuario === currentUser && atv.tipo === tipo && atv.id !== id) {
-            totalAntes += atv.horasConsideradas;
+
+      // 1) busca e atualiza o registro sem bloqueios
+      const trans = db.transaction("atividades", "readwrite");
+      const store = trans.objectStore("atividades");
+      store.get(id).onsuccess = function(ev) {
+        const atv = ev.target.result;
+        atv.nome = nome;
+        atv.tipo = tipo;
+        atv.horas = horas;
+        atv.periodo = periodo;
+        store.put(atv);
+      };
+
+      // 2) quando terminar, dispara o recálculo geral
+      trans.oncomplete = function() {
+        recalcularHorasTipo(currentUser, tipo, function(err) {
+          if (err) {
+            console.error("Erro no recálculo após edição:", err);
+            alert("Ocorreu um problema ao recálcular horas. Veja o console.");
           }
-          cursor.continue();
-        } else {
-          let maxRestante = maxHorasAtividades[tipo] - totalAntes;
-          let novasHorasConsideradas = Math.min(criterios[tipo], horas, maxRestante);
-          
-          if (novasHorasConsideradas > 0) {
-            let updateTrans = db.transaction("atividades", "readwrite");
-            let storeUpdate = updateTrans.objectStore("atividades");
-            storeUpdate.get(id).onsuccess = function(event) {
-              let atividade = event.target.result;
-              atividade.nome = nome;
-              atividade.tipo = tipo;
-              atividade.horas = horas;
-              atividade.periodo = periodo;
-              atividade.horasConsideradas = novasHorasConsideradas;
-              storeUpdate.put(atividade);
-              updateTrans.oncomplete = function() {
-                alert("Atividade atualizada com sucesso!");
-                formEdicao.reset();
-                atualizarTabela();
-                if (isDev) atualizarTabelaTodasAtividades();
-              };
-            };
-          } else {
-            alert("A atividade já atingiu o número máximo de horas registradas!");
-          }
-        }
+          // 3) atualiza a tela
+          alert("Atividade atualizada com sucesso!");
+          formEdicao.reset();
+          atualizarTabela();
+          if (isDev) atualizarTabelaTodasAtividades();
+        });
+      };
+      trans.onerror = function(e) {
+        console.error("Erro ao atualizar atividade:", e);
+        alert("Não foi possível atualizar a atividade. Veja o console.");
       };
     });
+
 
 
     function carregarEdicao(id) {
