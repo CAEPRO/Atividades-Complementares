@@ -5,267 +5,247 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Atividades Complementares</title>
   <style>
-    :root {
-      --primary-color: #007bff;
-      --primary-dark: #0056b3;
-      --secondary-color: #28a745;
-      --background-color: #f4f7fc;
-      --text-color: #333;
-      --box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      --border-radius: 5px;
-      --transition: 0.3s ease;
-    }
+  :root {
+    --orange: #f37321;
+    --dark-blue: #011b47;
+    --white: #ffffff;
+    --font: 'Montserrat', sans-serif;
+    --shadow-light: rgba(0, 0, 0, 0.1);
+    --shadow-dark: rgba(0, 0, 0, 0.2);
+    --transition: 0.3s ease;
+    --border-radius: 10px;
+  }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
 
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: var(--background-color);
-      color: var(--text-color);
-      line-height: 1.6;
-    }
+  body {
+    font-family: var(--font);
+    background: linear-gradient(to bottom, var(--orange) 40%, var(--dark-blue) 60%);
+    color: var(--white);
+    line-height: 1.6;
+    min-height: 100vh;
+    padding: 20px;
+  }
 
-    /* Container Geral */
-    .wrapper {
-      max-width: 1200px;
-      margin: 20px auto;
-      padding: 20px;
-      background: #fff;
-      border-radius: var(--border-radius);
-      box-shadow: var(--box-shadow);
-    }
+  /* Container Geral */
+  .wrapper {
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 20px;
+    background: var(--white);
+    border-radius: var(--border-radius);
+    box-shadow: 0 4px 8px var(--shadow-light);
+    color: #333;
+  }
 
-    /* Cabeçalho e Botões de Navegação */
+  /* Cabeçalho e Botões de Navegação */
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--dark-blue);
+    color: var(--white);
+    padding: 15px 20px;
+    border-radius: var(--border-radius);
+    margin-bottom: 20px;
+    box-shadow: 0 4px 8px var(--shadow-light);
+  }
+
+  header h1 {
+    font-size: 1.8rem;
+  }
+
+  header .botoes button {
+    background: var(--orange);
+    border: none;
+    padding: 10px 15px;
+    color: var(--white);
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    transition: background var(--transition), transform var(--transition);
+  }
+
+  header .botoes button:hover {
+    background: darken(var(--orange), 10%);
+    transform: translateY(-2px);
+  }
+
+  /* Telas */
+  .tela {
+    background: var(--white);
+    border-radius: var(--border-radius);
+    padding: 20px;
+    box-shadow: 0 4px 8px var(--shadow-light);
+    margin-top: 20px;
+    color: #333;
+  }
+
+  .hidden {
+    display: none;
+  }
+
+  /* Formulários */
+  form label {
+    display: block;
+    margin-top: 15px;
+    font-weight: 700;
+    color: var(--dark-blue);
+  }
+
+  form input,
+  form select {
+    width: 100%;
+    padding: 10px;
+    margin-top: 8px;
+    border: 1px solid #ccc;
+    border-radius: var(--border-radius);
+    transition: border-color var(--transition), box-shadow var(--transition);
+  }
+
+  form input:focus,
+  form select:focus {
+    border-color: var(--orange);
+    box-shadow: 0 0 5px var(--shadow-dark);
+    outline: none;
+  }
+
+  form button {
+    margin-top: 20px;
+    background: var(--dark-blue);
+    border: none;
+    color: var(--white);
+    padding: 12px 20px;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    transition: background var(--transition), transform var(--transition);
+  }
+
+  form button:hover {
+    background: darken(var(--dark-blue), 10%);
+    transform: translateY(-2px);
+  }
+
+  /* Abas */
+  .tabs {
+    display: flex;
+    flex-wrap: wrap;
+    margin-bottom: 15px;
+  }
+
+  .tab {
+    flex: 1;
+    text-align: center;
+    padding: 10px;
+    background: #eee;
+    cursor: pointer;
+    border-top-left-radius: var(--border-radius);
+    border-top-right-radius: var(--border-radius);
+    transition: background var(--transition), color var(--transition);
+  }
+
+  .tab.active {
+    background: var(--orange);
+    color: var(--white);
+    font-weight: bold;
+  }
+
+  /* Tabela */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+  }
+
+  table th,
+  table td {
+    border: 1px solid #ddd;
+    padding: 12px;
+    text-align: center;
+  }
+
+  table th {
+    background: var(--dark-blue);
+    color: var(--white);
+  }
+
+  /* Ações */
+  .actions {
+    cursor: pointer;
+    color: var(--orange);
+    text-decoration: underline;
+    transition: color var(--transition);
+  }
+
+  .actions:hover {
+    color: var(--dark-blue);
+  }
+
+  .small-btn {
+    background: var(--orange);
+    border: none;
+    padding: 5px 10px;
+    color: var(--white);
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    margin: 2px;
+    transition: background var(--transition), transform var(--transition);
+  }
+
+  .small-btn:hover {
+    background: darken(var(--orange), 10%);
+    transform: translateY(-1px);
+  }
+
+  /* Botão imprimir */
+  .imprimir-btn {
+    background: var(--secondary-color, #28a745);
+    margin-top: 10px;
+    padding: 10px 15px;
+    border: none;
+    color: var(--white);
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    transition: background var(--transition), transform var(--transition);
+  }
+
+  .imprimir-btn:hover {
+    background: darken(var(--secondary-color, #28a745), 10%);
+    transform: translateY(-2px);
+  }
+
+  /* Responsividade */
+  @media (max-width: 768px) {
     header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: var(--primary-color);
-      color: #fff;
-      padding: 15px 20px;
-      border-radius: var(--border-radius);
-      margin-bottom: 20px;
+      flex-direction: column;
+      text-align: center;
     }
-
-    header h1 {
-      font-size: 1.5rem;
-    }
-
-    header .botoes button {
-      background: var(--primary-dark);
-      border: none;
-      padding: 10px 15px;
-      color: #fff;
-      border-radius: var(--border-radius);
-      cursor: pointer;
-      transition: background var(--transition);
-    }
-
-    header .botoes button:hover {
-      background: #003f7f;
-    }
-
-    /* Estilos para as telas (login e principal) */
-    .tela {
-      background: #fff;
-      border-radius: var(--border-radius);
-      padding: 20px;
-      box-shadow: var(--box-shadow);
-      margin-top: 20px;
-    }
-
-    .hidden {
-      display: none;
-    }
-
-    /* Formulários */
-    form label {
-      display: block;
-      margin-top: 15px;
-      font-weight: bold;
-    }
-
-    form input,
-    form select {
-      width: 100%;
-      padding: 10px;
-      margin-top: 8px;
-      border: 1px solid #ccc;
-      border-radius: var(--border-radius);
-      transition: border-color var(--transition);
-    }
-
-    form input:focus,
-    form select:focus {
-      border-color: var(--primary-color);
-      outline: none;
-    }
-
-    form button {
-      margin-top: 20px;
-      background: var(--primary-color);
-      border: none;
-      color: #fff;
-      padding: 12px 20px;
-      border-radius: var(--border-radius);
-      cursor: pointer;
-      transition: background var(--transition);
-    }
-
-    form button:hover {
-      background: var(--primary-dark);
-    }
-
-    /* Abas da aplicação */
     .tabs {
-      display: flex;
-      flex-wrap: wrap;
-      margin-bottom: 15px;
+      flex-direction: column;
     }
-
     .tab {
-      flex: 1;
-      text-align: center;
+      margin-bottom: 5px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    body {
       padding: 10px;
-      background: #eee;
-      cursor: pointer;
-      border: 1px solid #ccc;
-      transition: background var(--transition);
     }
+    form input,
+    form select,
+    form button {
+      font-size: 0.9rem;
+    }
+    header h1 {
+      font-size: 1.4rem;
+    }
+  }
+</style>
 
-    .tab.active {
-      background: var(--primary-color);
-      color: #fff;
-      font-weight: bold;
-    }
-
-    /* Tabela de atividades e usuários */
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 15px;
-    }
-
-    table th,
-    table td {
-      border: 1px solid #ddd;
-      padding: 12px;
-      text-align: center;
-    }
-
-    table th {
-      background: var(--primary-color);
-      color: #fff;
-    }
-
-    /* Botões pequenos e ações */
-    .actions {
-      cursor: pointer;
-      color: var(--primary-color);
-      text-decoration: underline;
-      transition: color var(--transition);
-    }
-
-    .actions:hover {
-      color: var(--primary-dark);
-    }
-
-    .small-btn {
-      background: #ffc107;
-      border: none;
-      padding: 5px 10px;
-      color: var(--text-color);
-      border-radius: var(--border-radius);
-      cursor: pointer;
-      margin: 2px;
-      transition: background var(--transition);
-    }
-
-    .small-btn:hover {
-      background: #e0a800;
-    }
-
-    /* Botão para impressão */
-    .imprimir-btn {
-      background: var(--secondary-color);
-      margin-top: 10px;
-      padding: 10px 15px;
-      border: none;
-      color: #fff;
-      border-radius: var(--border-radius);
-      cursor: pointer;
-      transition: background var(--transition);
-    }
-
-    .imprimir-btn:hover {
-      background: #1e7e34;
-    }
-
-    /* Login e Registro */
-    .login-container {
-      max-width: 400px;
-      margin: 80px auto;
-      padding: 30px;
-      background: #fff;
-      border-radius: var(--border-radius);
-      box-shadow: var(--box-shadow);
-      text-align: center;
-    }
-
-    .login-container h2 {
-      margin-bottom: 20px;
-      font-size: 1.8rem;
-    }
-
-    .toggle,
-    .about {
-      display: block;
-      margin-top: 15px;
-      cursor: pointer;
-      color: var(--primary-color);
-      transition: color var(--transition);
-    }
-
-    .toggle:hover,
-    .about:hover {
-      color: var(--primary-dark);
-    }
-
-    /* Responsividade */
-    @media (max-width: 768px) {
-      header {
-        flex-direction: column;
-        text-align: center;
-      }
-      header h1 {
-        margin-bottom: 10px;
-      }
-      .tabs {
-        flex-direction: column;
-      }
-      .tab {
-        margin-bottom: 5px;
-      }
-    }
-
-    @media (max-width: 480px) {
-      body {
-        padding: 10px;
-      }
-      form input,
-      form select,
-      form button {
-        font-size: 0.9rem;
-      }
-      header h1 {
-        font-size: 1.2rem;
-      }
-    }
-  </style>
 </head>
 <body>
   <!-- Tela de Login/Registro -->
@@ -1075,3 +1055,4 @@
   </script>
 </body>
 </html>
+
